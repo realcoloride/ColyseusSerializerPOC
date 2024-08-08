@@ -31,8 +31,8 @@ class MySchema extends Schema {
     @sync()
     iHateThis: Map<string, any[][]> = new Map();
 
-    @sync()
-    schemaInASchema: MySchema = new MySchema();
+    //@sync()
+    //schemaInASchema: MySchema = new MySchema();
 }
 
 
@@ -48,13 +48,13 @@ schema.dimensions[0][0] = [["forza horizon", "cheese", "yay", "hello world?"]];
 schema.dimensions[0][0][0] = ["forza gorizon", "thingy"];
 schema.dimensions[0][0][0].push("hmm pizza", "hmm ravioli");
 
-/*
 schema.coolSet.add("cool thing numero uno");
 schema.coolSet.delete("cool thing numero uno");
 schema.coolSet.add("cool thing numero uno");
 schema.coolSet.clear();
 schema.coolSet = new Set("z");
 
+/*
 // THIS IS MONSTRUOUS
 schema.myMap.set("test", new Map<string, Map<string, Map<string, Map<string, number>>>>());
 schema.myMap.get("test")?.set("test", new Map<string, Map<string, Map<string, number>>>());
@@ -68,7 +68,7 @@ console.log(schema.myMap);
 console.log("ya", schema.myMap.get("test")?.get("test")?.get("test")?.get("test")?.get("test"));
 */
 // this causes a nasty stack overflow lel
-schema.schemaInASchema.coolSet = new Set();
+//schema.schemaInASchema.coolSet = new Set();
 
 schema.myRecord["whaaaat"] = 2;
 
