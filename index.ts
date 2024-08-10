@@ -23,6 +23,9 @@ class MySchema extends Schema {
     myMap: Map<string, Map<string, Map<string, Map<string, Map<string, number>>>>> = new Map();
 
     @sync()
+    nestedMap: Map<string, any[]> = new Map();
+
+    @sync()
     myRecord: Record<string, number> = {};
 
     @sync()
@@ -70,10 +73,10 @@ console.log("ya", schema.myMap.get("test")?.get("test")?.get("test")?.get("test"
 // this causes a nasty stack overflow lel
 //schema.schemaInASchema.coolSet = new Set();
 
-schema.myRecord["whaaaat"] = 2;
-
 const array = schema.iHateThis.get("test") as any[];
 array[0] = 1;
+
+schema.myRecord["whaaaat"] = 2;
 // ["test"], [0]
 
 //console.log(schema);

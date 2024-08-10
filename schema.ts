@@ -25,57 +25,69 @@ import { createRecordProxy, isRecord } from './record';
 */
 const SYNCED_PROPERTIES = Symbol('SYNCED_PROPERTIES');
 
-function createSetter(
-    target: any, 
+function internallyCreateProxySetter(
     propertyName: string,
     values: Map<object, Map<string, any>>,
     initialized: Map<object, Set<string>>,
     path: any[] = [],
     multiplePath: any[] = []
 ) {
-
     return function(this: any, newVal: any) {
-        if (!values.has(this))
-             values.set(this, new Map<string, any>());
-        if (!initialized.has(this))
-             initialized.set(this, new Set<string>());
+        createProxySetter.call(this, propertyName, values, initialized, path, multiplePath, newVal);
+    }
+}
 
-        const instanceValues = values.get(this)!;
-        const instanceInitialized = initialized.get(this)!;
-        const oldValue = instanceValues.get(propertyName);
+export function createProxySetter(
+    this: any,
+    propertyName: string,
+    values: Map<object, Map<string, any>>,
+    initialized: Map<object, Set<string>>,
+    path: any[] = [],
+    multiplePath: any[] = [],
+    newVal: any
+) {
 
-        if (!instanceInitialized.has(propertyName)) {
-            instanceInitialized.add(propertyName);
-        } else {
-            console.log(`Property ${propertyName} changed from ${oldValue} to ${newVal}`);
-            const thisAsAny = (this as any);
+    if (!values.has(this))
+        values.set(this, new Map<string, any>());
+    if (!initialized.has(this))
+        initialized.set(this, new Set<string>());
 
-            const encodeIndex = thisAsAny.__propertyToIndex?.get(propertyName);
-            thisAsAny.__operationManager?.encodeAnything(encodeIndex, Operation.Reset, newVal);
-        }
+    const instanceValues = values.get(this)!;
+    const instanceInitialized = initialized.get(this)!;
+    const oldValue = instanceValues.get(propertyName);
 
-        // Wrap arrays, maps, and nested schemas in proxies
-        // No need to proxy schemas; since referece ids reference directly to schemas
-        //                           through OperationManager
+    if (!instanceInitialized.has(propertyName)) {
+        instanceInitialized.add(propertyName);
+    } else {
+        console.trace(`Property ${propertyName} changed from ${oldValue} to ${newVal}`);
+        const thisAsAny = (this as any);
 
-        if (newVal instanceof Array) {
-            newVal = createArrayProxy(this, propertyName, newVal, true, path, multiplePath);
-        } else if (newVal instanceof Map) {
-            newVal = createMapProxy(this, propertyName, path, newVal);
-        } else if (newVal instanceof Set) {
-            newVal = createSetProxy(this, propertyName, newVal);
-        } else if (isRecord(newVal)) {
-            newVal = createRecordProxy(this, propertyName, newVal, true);
-            console.log(propertyName, "is a goddamn fuckin RECORD (like)!!!!! goddamn");
-        } else {
-            const thisAsAny = (this as any);
+        const encodeIndex = thisAsAny.__propertyToIndex?.get(propertyName);
+        thisAsAny.__operationManager?.encodeAnything(encodeIndex, Operation.Reset, newVal);
+    }
 
-            const encodeIndex = thisAsAny.__propertyToIndex?.get(propertyName);
-            thisAsAny.__operationManager?.encodeAnything(encodeIndex, Operation.Reset, newVal);
-        }
+    // Wrap arrays, maps, and nested schemas in proxies
+    // No need to proxy schemas; since referece ids reference directly to schemas
+    //                           through OperationManager
 
-        instanceValues.set(propertyName, newVal);
-    };
+    if (newVal instanceof Array) {
+        newVal = createArrayProxy(this, propertyName, newVal, true, path, multiplePath);
+    } else if (newVal instanceof Map) {
+        newVal = createMapProxy(this, values, initialized, propertyName, path, newVal, multiplePath);
+    } else if (newVal instanceof Set) {
+        newVal = createSetProxy(this, propertyName, newVal);
+    } else if (isRecord(newVal)) {
+        newVal = createRecordProxy(this, propertyName, newVal, true);
+        console.log(propertyName, "is a goddamn fuckin RECORD (like)!!!!! goddamn");
+    } else {
+        const thisAsAny = (this as any);
+
+        const encodeIndex = thisAsAny.__propertyToIndex?.get(propertyName);
+        thisAsAny.__operationManager?.encodeAnything(encodeIndex, Operation.Reset, newVal);
+    }
+
+    instanceValues.set(propertyName, newVal);
+    return newVal;
 }
 
 export function sync() {
@@ -98,7 +110,7 @@ export function sync() {
 
         Object.defineProperty(target, propertyName, {
             get: getter,
-            set: createSetter(target, propertyName, values, initialized),
+            set: internallyCreateProxySetter(propertyName, values, initialized),
             enumerable: true,
             configurable: true
         });
