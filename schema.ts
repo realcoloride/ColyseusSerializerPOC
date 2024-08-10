@@ -59,7 +59,7 @@ export function createProxySetter(
     if (!instanceInitialized.has(propertyName)) {
         instanceInitialized.add(propertyName);
     } else {
-        console.trace(`Property ${propertyName} changed from ${oldValue} to ${newVal}`);
+        console.log(`Property ${propertyName} changed from ${oldValue} to ${newVal}`);
         const thisAsAny = (this as any);
 
         const encodeIndex = thisAsAny.__propertyToIndex?.get(propertyName);

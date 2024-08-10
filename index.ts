@@ -57,7 +57,6 @@ schema.coolSet.add("cool thing numero uno");
 schema.coolSet.clear();
 schema.coolSet = new Set("z");
 
-/*
 // THIS IS MONSTRUOUS
 schema.myMap.set("test", new Map<string, Map<string, Map<string, Map<string, number>>>>());
 schema.myMap.get("test")?.set("test", new Map<string, Map<string, Map<string, number>>>());
@@ -69,14 +68,24 @@ schema.myMap.get("test")?.get("test")?.get("test")?.get("test")?.set("test", 45)
 //schema.myMap.get("test")?.set("test", 5);
 console.log(schema.myMap);
 console.log("ya", schema.myMap.get("test")?.get("test")?.get("test")?.get("test")?.get("test"));
-*/
+
 // this causes a nasty stack overflow lel
 //schema.schemaInASchema.coolSet = new Set();
+schema.nestedMap.set("test", [47]);
 
+const array2 = schema.nestedMap.get("test") as any[];
+array2[1] = 1;
+console.log("m", array2);
+
+console.log(schema.nestedMap.get("test"));
 const array = schema.iHateThis.get("test") as any[];
+console.log("m", array);
 array[0] = 1;
+console.log(schema.nestedMap.get("test"));
 
-schema.myRecord["whaaaat"] = 2;
+/*
+console.log();
+schema.myRecord["whaaaat"] = 2;*/
 // ["test"], [0]
 
 //console.log(schema);

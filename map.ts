@@ -1,69 +1,34 @@
 import { isRecord } from "./record";
 import { createProxySetter } from "./schema";
+import { Operation } from './enums';
 
 export function createMapProxy<K, V>(
     schema: any, 
     values: Map<object, Map<string, any>>,
     initialized: Map<object, Set<string>>,
     propertyName: string, 
-    path: (any)[], 
+    path: any[], 
     map: Map<K, V>,
-    multiplePath: (any)[]
+    multiplePath: any[]
 ) {
     return new Proxy(map, {
         get(target, property, receiver) {
             if (typeof target[property as keyof typeof target] === 'function') {
+                const methodName = String(property);
                 return (...args: any[]) => {
-                    const methodName = String(property);
-                    console.log(`Method at path [${[...path].join('][')}] ${methodName} called with arguments: ${args}`);
+                    let result = (target[property as keyof typeof target] as Function).apply(target, args);
                     
-                    let result = ((target as any)[property as keyof any[]] as Function).apply(target, args);
-                    /*const encodeIndex = schema?.__propertyToIndex[propertyName];
-                    schema?.__operationManager.encodeSetMethod(encodeIndex, String(property), args);*/
-                    console.log(result);
+                    if (methodName === "get") {
+                        const key = args[0];
 
-                    
-                    switch (methodName) {
-                                
-                        case "get":
-                            if (result instanceof Array ||
-                                isRecord(result)
-                            ) {
-                                console.log("is inside of something?");
-                                multiplePath.push(property);
-                            } 
-                            console.log("m", multiplePath);
-                            //target.get();
-                            //createProxySetter(propertyName, values, initialized, path, multiplePath).call(this, result);
-                            //result = createProxySetter.call(schema, propertyName, values, initialized, path, multiplePath, result);
-                            console.log("r", result);
-                            break;
-                        case "set":
-                            /*let targetMap: any = target;
-                            //console.log(path);
-                            path.forEach((key) => {
-                                const map = targetMap.get(key);
-
-                                if (map instanceof Map) {
-                                    console.log("k");
-                                    targetMap = targetMap.get(key);
-                                    console.log("NEW TARGEt:" , targetMap);
-                                }
-                            });
-
-
-                            targetMap.set(args[0], createMapProxy(schema, propertyName, path, result) as any);*/
-                            break;
-                    }
-                    
-                    if (!(result instanceof Proxy)) {
-                    }
-
-                    if (result instanceof Map) {
-                        console.log("nested result:", result, "at path:", path);
-                        path.push(args[0]);
-
-                        //result = createMapProxy(schema, propertyName, map);
+                        if (result instanceof Array) {
+                            // When the result is an array, prioritize the `path` for array operations
+                            path.push(key);
+                        } else if (result instanceof Map || isRecord(result) || result instanceof Set) {
+                            // When result is a Map, Record, or Set, continue using `multiplePath`
+                            multiplePath.push(key);
+                            result = createProxySetter.call(schema, propertyName, values, initialized, path, multiplePath, result);
+                        }
                     }
 
                     return result;
@@ -71,6 +36,19 @@ export function createMapProxy<K, V>(
             }
 
             return Reflect.get(target, property, receiver);
+        },
+
+        set(target, property, value, receiver) {
+            if (value instanceof Array) {
+                // Prioritize `path` for arrays
+                path.push(property);
+            } else {
+                // For nested maps or records, continue using `multiplePath`
+                multiplePath.push(property);
+            }
+            
+            createProxySetter.call(schema, propertyName, values, initialized, path, multiplePath, value);
+            return Reflect.set(target, property, value, receiver);
         }
     });
 }

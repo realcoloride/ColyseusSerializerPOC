@@ -30,9 +30,12 @@ export enum Operation {
 
     // Map operations
     Map = 30,
+
+    MapDelete,
+    MapClear,
 }
 
-export const OPERATION_ARRAY_METHODS_NAMES: { [ key in string ]: Operation} = {
+export const OPERATION_ARRAY_METHODS_NAMES: { [ key in string ]: Operation } = {
     "push" : Operation.ArrayPush,
     "pop" : Operation.ArrayPop,
     "shift" : Operation.ArrayShift,
@@ -52,14 +55,24 @@ export const OPERATION_ARRAY_METHODS = [
     "concat"
 ];
 
-export const OPERATION_SET_METHODS_NAMES: { [ key in string ]: Operation}  = {
+export const OPERATION_SET_METHODS_NAMES: { [ key in string ]: Operation } = {
     "add" : Operation.SetAdd,
     "delete" : Operation.SetDelete,
     "clear" : Operation.SetClear,
-}
+};
 
 export const OPERATION_SET_METHODS = [
     "add",
     "delete",
     "clear"
+];
+
+export const OPERATION_MAP_METHODS_NAMES: { [ key in string ]: Operation } = {
+    "delete" : Operation.SetDelete,
+    "clear" : Operation.SetClear,
+}
+
+export const OPERATION_MAP_METHODS = [
+    "delete",
+    "clear",
 ];
