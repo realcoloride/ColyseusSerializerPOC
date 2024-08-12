@@ -4,6 +4,8 @@ import {
     OPERATION_ARRAY_METHODS,
     OPERATION_SET_METHODS_NAMES,
     OPERATION_SET_METHODS,
+    OPERATION_MAP_METHODS,
+    OPERATION_MAP_METHODS_NAMES,
 } from './enums';
 import { PackrStream, Unpackr } from 'msgpackr';
 import { Schema } from './schema';
@@ -104,6 +106,23 @@ export class OperationManager {
         if (!operation) return;
 
         this.begin(operation, undefined, index, multiplePath);
+        this.encodeObject(parameters);
+        this.send();
+    }
+    public encodeMapMethod(
+        index: number,
+        methodName: string | undefined,
+        operation: Operation = Operation.Reset,
+        path: (string | number | undefined)[],
+        multiplePath: any[] | undefined,
+        parameters: any[]
+    ) {
+        if (methodName)
+        if (OPERATION_MAP_METHODS.includes(methodName))
+            operation = OPERATION_MAP_METHODS_NAMES[methodName];
+
+        this.begin(operation, path, index, multiplePath);        
+
         this.encodeObject(parameters);
         this.send();
     }

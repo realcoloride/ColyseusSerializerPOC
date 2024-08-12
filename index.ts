@@ -78,6 +78,7 @@ array2[1] = 1;
 console.log("m", array2);
 
 console.log(schema.nestedMap.get("test"));
+schema.iHateThis.set("test", []);
 const array = schema.iHateThis.get("test") as any[];
 console.log("m", array);
 array[0] = 1;

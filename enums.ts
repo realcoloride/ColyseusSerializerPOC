@@ -29,9 +29,7 @@ export enum Operation {
     ArrayResize,
 
     // Map operations
-    Map = 30,
-
-    MapDelete,
+    MapDelete = 30,
     MapClear,
 }
 
