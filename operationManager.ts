@@ -64,8 +64,10 @@ export class OperationManager {
         const usePath = path && path?.length > 0;
             
         this.encodeObject(usePath ? Operation.UsePath : Operation.NoPath);
-        if (usePath) this.encodeObject(path);
+        if (!usePath) return;
 
+        this.encodeObject(path);
+        
         const useMultiplePath = multiplePath && multiplePath?.length > 0;
         this.encodeObject(useMultiplePath ? Operation.UseMultiplePath : Operation.UseSinglePath);
         if (useMultiplePath) this.encodeObject(multiplePath);
